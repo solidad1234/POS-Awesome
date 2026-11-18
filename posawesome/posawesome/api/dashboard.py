@@ -1986,6 +1986,105 @@ def _collect_staff_cashier_performance_report(
     return report
 
 
+def _collect_margin_report(
+    profile_names: list[str],
+    company: str,
+    date_from: str,
+    date_to: str,
+    limit: int = 500,
+) -> dict[str, Any]:
+    """Return per-item margin data (department, item, qty, ext price, ext cost, margin).
+
+    Reuses _collect_item_totals() so the SQL query is not duplicated.
+    """
+    report: dict[str, Any] = {
+        "period": {"from": date_from, "to": date_to},
+        "summary": {
+            "total_ext_price": 0.0,
+            "total_ext_cost": 0.0,
+            "total_margin": 0.0,
+            "avg_margin_pct": None,
+            "item_count": 0,
+        },
+        "rows": [],
+    }
+    if not profile_names:
+        return report
+
+    grouped_items = _collect_item_totals(
+        profile_names=profile_names,
+        company=company,
+        date_from=date_from,
+        date_to=date_to,
+    )
+    if not grouped_items:
+        return report
+
+    # Fetch item_group (department) for each item_code
+    item_codes = sorted(grouped_items.keys())
+    item_meta: dict[str, dict[str, Any]] = {}
+    if item_codes:
+        item_rows = frappe.get_all(
+            "Item",
+            filters={"name": ["in", item_codes]},
+            fields=["name", "item_group"],
+        )
+        item_meta = {
+            cstr(row.get("name")).strip(): row
+            for row in item_rows
+            if cstr(row.get("name")).strip()
+        }
+
+    summary = report["summary"]
+    rows_out: list[dict[str, Any]] = []
+
+    for item_code, row in grouped_items.items():
+        ext_price = flt(row.get("sales_amount"))
+        ext_cost = flt(row.get("estimated_cost"))
+        total_margin = flt(ext_price - ext_cost)
+        qty_sold = flt(row.get("sold_qty"))
+        margin_pct = (
+            flt((total_margin / ext_price) * 100)
+            if abs(ext_price) > 0.00001
+            else None
+        )
+        department = (
+            cstr((item_meta.get(item_code) or {}).get("item_group")).strip()
+            or _("Uncategorized")
+        )
+
+        summary["total_ext_price"] += ext_price
+        summary["total_ext_cost"] += ext_cost
+        summary["total_margin"] += total_margin
+        summary["item_count"] += 1
+
+        rows_out.append(
+            {
+                "department": department,
+                "item_code": item_code,
+                "item_name": cstr(row.get("item_name") or item_code),
+                "qty_sold": qty_sold,
+                "ext_price": ext_price,
+                "ext_cost": ext_cost,
+                "total_margin": total_margin,
+                "margin_pct": margin_pct,
+            }
+        )
+
+    total_ext_price = flt(summary["total_ext_price"])
+    summary["avg_margin_pct"] = (
+        flt((flt(summary["total_margin"]) / total_ext_price) * 100)
+        if abs(total_ext_price) > 0.00001
+        else None
+    )
+
+    # Sort by total_margin descending and apply limit
+    rows_out.sort(key=lambda r: flt(r.get("total_margin")), reverse=True)
+    row_limit = max(1, min(cint(limit), 5000))
+    report["rows"] = rows_out[:row_limit]
+    return report
+
+
 def _collect_profitability_report(
     profile_names: list[str],
     company: str,
@@ -4603,6 +4702,7 @@ def get_dashboard_data(
     tax_report_limit: int = 20,
     supplier_limit: int = 8,
     low_stock_limit: int = 20,
+    margin_report_limit: int = 500,
 ):
     """Return real-time dashboard data for POS Awesome.
 
@@ -5063,6 +5163,17 @@ def get_dashboard_data(
                 "top_pending_supplier": None,
             },
         },
+        "margin_report": {
+            "period": {"from": str(month_start), "to": str(report_to_date)},
+            "summary": {
+                "total_ext_price": 0.0,
+                "total_ext_cost": 0.0,
+                "total_margin": 0.0,
+                "avg_margin_pct": None,
+                "item_count": 0,
+            },
+            "rows": [],
+        },
     }
 
     if not enabled:
@@ -5231,6 +5342,13 @@ def get_dashboard_data(
         date_from=str(month_start),
         date_to=str(report_to_date),
         limit=supplier_limit,
+    )
+    payload["margin_report"] = _collect_margin_report(
+        profile_names=selected_profile_names,
+        company=company,
+        date_from=str(month_start),
+        date_to=str(report_to_date),
+        limit=margin_report_limit,
     )
 
     return payload

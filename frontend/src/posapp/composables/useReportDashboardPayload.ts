@@ -303,6 +303,17 @@ export const createEmptyDashboard = (): DashboardResponse => ({
 		},
 		period: {},
 	},
+	margin_report: {
+		period: {},
+		summary: {
+			total_ext_price: 0,
+			total_ext_cost: 0,
+			total_margin: 0,
+			avg_margin_pct: null,
+			item_count: 0,
+		},
+		rows: [],
+	},
 });
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

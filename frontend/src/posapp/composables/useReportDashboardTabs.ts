@@ -6,7 +6,8 @@ export type DashboardTab =
 	| "branches"
 	| "products"
 	| "inventory"
-	| "procurement";
+	| "procurement"
+	| "margin";
 
 type Translator = (value: string) => string;
 
@@ -20,5 +21,6 @@ export function createDashboardTabItems(translate: Translator) {
 		{ value: "products", label: translate("Products"), icon: "mdi-package-variant-closed" },
 		{ value: "inventory", label: translate("Inventory"), icon: "mdi-warehouse" },
 		{ value: "procurement", label: translate("Procurement"), icon: "mdi-truck-delivery-outline" },
+		{ value: "margin", label: translate("Margin Report"), icon: "mdi-table-large" },
 	] satisfies Array<{ value: DashboardTab; label: string; icon: string }>;
 }

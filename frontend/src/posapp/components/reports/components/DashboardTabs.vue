@@ -31,15 +31,7 @@
 </template>
 
 <script setup lang="ts">
-type DashboardTab =
-	| "sales"
-	| "staff"
-	| "customers"
-	| "finance"
-	| "branches"
-	| "products"
-	| "inventory"
-	| "procurement";
+import type { DashboardTab } from "@/posapp/composables/useReportDashboardTabs";
 
 defineProps<{
 	activeTab: DashboardTab;

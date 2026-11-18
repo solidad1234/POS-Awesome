@@ -89,6 +89,17 @@ export interface SupplierOverviewSummary {
 	pending_ratio_pct?: number;
 }
 
+export interface MarginReportRow {
+	department?: string;
+	item_code: string;
+	item_name?: string;
+	qty_sold: number;
+	ext_price: number;
+	ext_cost: number;
+	total_margin: number;
+	margin_pct?: number | null;
+}
+
 export interface ItemSalesRow {
 	item_code: string;
 	item_name?: string;
@@ -700,6 +711,17 @@ export interface DashboardResponse {
 			to?: string;
 		};
 	};
+	margin_report: {
+		period?: { from?: string; to?: string };
+		summary: {
+			total_ext_price: number;
+			total_ext_cost: number;
+			total_margin: number;
+			avg_margin_pct?: number | null;
+			item_count: number;
+		};
+		rows: MarginReportRow[];
+	};
 }
 
 export interface DashboardRequest {
@@ -726,6 +748,7 @@ export interface DashboardRequest {
 	tax_report_limit?: number;
 	supplier_limit?: number;
 	low_stock_limit?: number;
+	margin_report_limit?: number;
 }
 
 export function fetchDashboardData(args: DashboardRequest = {}) {

@@ -295,6 +295,16 @@
 					:format-date="formatDate"
 					:trend-progress="trendProgress"
 				/>
+
+				<MarginReportSection
+					v-if="activeDashboardTab === 'margin'"
+					:rows="marginReportRows"
+					:summary="marginReportSummary"
+					:range-label="marginReportRangeLabel"
+					:format-money="formatMoney"
+					:format-quantity="formatQuantity"
+					:format-percent="formatPercent"
+				/>
 			</template>
 		</v-container>
 	</div>
@@ -353,6 +363,7 @@ import {
 	type SupplierDayRow,
 	type SupplierOverviewSummary,
 	type SupplierSummaryRow,
+	type MarginReportRow,
 } from "@/posapp/services/dashboardService";
 import BranchLocationSection from "./components/BranchLocationSection.vue";
 import CustomerReportSection from "./components/CustomerReportSection.vue";
@@ -371,6 +382,7 @@ import SalesTrendSection from "./components/SalesTrendSection.vue";
 import StaffPerformanceSection from "./components/StaffPerformanceSection.vue";
 import StockMovementSection from "./components/StockMovementSection.vue";
 import SupplierPurchaseSection from "./components/SupplierPurchaseSection.vue";
+import MarginReportSection from "./components/MarginReportSection.vue";
 import "./components/reports.css";
 
 defineOptions({
@@ -1306,6 +1318,20 @@ const topPendingSupplierLabel = computed(() => {
 	}
 	return String(row.supplier_name || row.supplier || __("N/A"));
 });
+
+// ---- Margin Report ----
+const marginReport = computed(() => dashboardData.value.margin_report || {});
+const marginReportRows = computed<MarginReportRow[]>(() => marginReport.value.rows || []);
+const marginReportSummary = computed(() => marginReport.value.summary || {
+	total_ext_price: 0,
+	total_ext_cost: 0,
+	total_margin: 0,
+	avg_margin_pct: null,
+	item_count: 0,
+});
+const marginReportRangeLabel = computed(() =>
+	reportRangeLabel(marginReport.value.period, dashboardData.value.date_context, formatDate, __),
+);
 
 const maxFastMovingQty = computed(() => positiveMax(fastMovingItems.value, (item) => Number(item.sold_qty || 0)));
 
