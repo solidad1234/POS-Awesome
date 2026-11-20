@@ -299,6 +299,9 @@ function addTotals(lines: string[], doc: Record<string, any>, width: number) {
 		if (paymentCurrency !== currency) {
 			lines.push(leftRight(`  ${translate("Invoice equivalent")}`, formatAmount(payment.amount, currency), width));
 		}
+		if (payment.posa_reference_code) {
+			lines.push(`  ${translate("Ref")}: ${cleanText(payment.posa_reference_code)}`);
+		}
 	}
 	const changeReturns = Array.isArray(doc.posa_change_returns) ? doc.posa_change_returns : [];
 	if (changeReturns.length) {

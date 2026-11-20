@@ -113,7 +113,10 @@ function defaultOfflineHTML(invoice: any, terms = "") {
 				paymentCurrency !== invoice.currency
 					? ` <small>(${row.amount} ${invoice.currency || ""})</small>`
 					: "";
-			return `<tr><td>${row.mode_of_payment || "Payment"} (${paymentCurrency})</td><td style="text-align:right">${original}${equivalent}</td></tr>`;
+			const refCode = row.posa_reference_code
+				? `<tr><td style="padding-left:8px;color:#555;font-size:11px;">Ref: ${row.posa_reference_code}</td><td></td></tr>`
+				: "";
+			return `<tr><td>${row.mode_of_payment || "Payment"} (${paymentCurrency})</td><td style="text-align:right">${original}${equivalent}</td></tr>${refCode}`;
 		})
 		.join("");
 	const physicalChangeRows = (invoice.posa_change_returns || [])

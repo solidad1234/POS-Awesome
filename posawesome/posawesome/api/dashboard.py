@@ -4703,6 +4703,8 @@ def get_dashboard_data(
     supplier_limit: int = 8,
     low_stock_limit: int = 20,
     margin_report_limit: int = 500,
+    margin_from_date=None,
+    margin_to_date=None,
 ):
     """Return real-time dashboard data for POS Awesome.
 
@@ -5343,11 +5345,25 @@ def get_dashboard_data(
         date_to=str(report_to_date),
         limit=supplier_limit,
     )
+    # Margin report supports independent date range; fall back to month window
+    _margin_from = str(month_start)
+    _margin_to = str(report_to_date)
+    if margin_from_date:
+        try:
+            _margin_from = str(getdate(cstr(margin_from_date).strip()))
+        except Exception:
+            pass
+    if margin_to_date:
+        try:
+            _margin_to = str(getdate(cstr(margin_to_date).strip()))
+        except Exception:
+            pass
+
     payload["margin_report"] = _collect_margin_report(
         profile_names=selected_profile_names,
         company=company,
-        date_from=str(month_start),
-        date_to=str(report_to_date),
+        date_from=_margin_from,
+        date_to=_margin_to,
         limit=margin_report_limit,
     )
 

@@ -469,6 +469,7 @@ fixtures = [
                     "Sales Invoice Payment-posa_rate_source",
                     "Sales Invoice Payment-posa_account_currency",
                     "Sales Invoice Payment-posa_account_amount",
+                    "Sales Invoice Payment-posa_reference_code",
                     "Payment Entry-posa_payment_currency",
                     "Payment Entry-posa_original_amount",
                     "Payment Entry-posa_invoice_currency",
@@ -484,9 +485,14 @@ fixtures = [
                     "POS Invoice-posa_change_returns",
                     "POS Invoice-posa_change_returned",
                     "POS Invoice-posa_remaining_change",
+                    "Sales Invoice Payment-posa_reference_code",
                 ],
             ]
         ],
+    },
+    {
+        "doctype": "Print Format",
+        "filters": [["name", "in", ("POS Thermal Receipt",)]],
     },
 ]
 

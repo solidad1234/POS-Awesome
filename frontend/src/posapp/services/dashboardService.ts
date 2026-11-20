@@ -749,6 +749,8 @@ export interface DashboardRequest {
 	supplier_limit?: number;
 	low_stock_limit?: number;
 	margin_report_limit?: number;
+	margin_from_date?: string | null;
+	margin_to_date?: string | null;
 }
 
 export function fetchDashboardData(args: DashboardRequest = {}) {
