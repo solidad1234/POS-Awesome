@@ -131,6 +131,23 @@
 					</div>
 				</v-col>
 
+				<!-- Reference Code — optional field for reconciliation -->
+				<v-col cols="12" v-if="!isMpesaC2bPayment(payment) && !isGiftCardPayment(payment)">
+					<v-text-field
+						density="compact"
+						variant="outlined"
+						class="sleek-field pos-themed-input"
+						hide-details
+						clearable
+						:label="frappe._('Reference Code (optional)')"
+						:placeholder="frappe._('e.g. M-PESA code, cheque no…')"
+						:model-value="payment.posa_reference_code || ''"
+						@update:model-value="$emit('update-reference-code', payment, $event)"
+						@keydown.enter="blurTarget"
+						@keydown.esc="blurTarget"
+					></v-text-field>
+				</v-col>
+
 				<v-col
 					cols="12"
 					v-if="
@@ -236,6 +253,7 @@ const emit = defineEmits([
 	"mpesa-dialog",
 	"request-payment",
 	"open-gift-card",
+	"update-reference-code",
 ]);
 
 const remainderLockTitle = (payment) =>

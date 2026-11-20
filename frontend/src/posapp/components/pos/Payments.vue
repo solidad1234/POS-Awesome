@@ -123,6 +123,7 @@
 							@mpesa-dialog="mpesa_c2b_dialog"
 							@request-payment="request_payment"
 							@open-gift-card="openGiftCardDialog"
+							@update-reference-code="handlePaymentReferenceCodeChange"
 						/>
 						<PaymentGiftCardSection
 							:enabled="Boolean(pos_profile?.posa_use_gift_cards)"
@@ -1674,6 +1675,10 @@ const handlePaymentRateChange = async (payment, event) => {
 	payment.posa_exchange_rate = holder.value;
 	payment.posa_rate_source = "manual";
 	if (!(await normalizePayment(payment))) showMissingPaymentRate(payment);
+};
+
+const handlePaymentReferenceCodeChange = (payment, value) => {
+	payment.posa_reference_code = (value || "").trim();
 };
 
 const handleSetFullAmount = async (payment, isReturn) => {

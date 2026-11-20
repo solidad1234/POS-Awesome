@@ -304,6 +304,11 @@
 					:format-money="formatMoney"
 					:format-quantity="formatQuantity"
 					:format-percent="formatPercent"
+					:from-date="marginFromDate"
+					:to-date="marginToDate"
+					:loading="loading"
+					@update:from-date="marginFromDate = $event; loadDashboard()"
+					@update:to-date="marginToDate = $event; loadDashboard()"
 				/>
 			</template>
 		</v-container>
@@ -424,6 +429,14 @@ const profitabilityReportLimit = ref(20);
 const branchReportLimit = ref(20);
 const taxReportLimit = ref(20);
 let fastMovingSearchDebounce: ReturnType<typeof setTimeout> | null = null;
+
+// Margin report independent date range (defaults to today)
+function todayString() {
+	const d = new Date();
+	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+const marginFromDate = ref(todayString());
+const marginToDate = ref(todayString());
 
 
 
@@ -1487,6 +1500,8 @@ async function loadDashboard() {
 			fast_moving_page: fastMovingPage.value,
 			fast_moving_page_size: fastMovingPageSize.value,
 			fast_moving_search: fastMovingSearch.value || undefined,
+			margin_from_date: marginFromDate.value || undefined,
+			margin_to_date: marginToDate.value || undefined,
 		});
 		logDashboardResponse(response);
 		dashboardData.value = mergeDashboardPayload(response);

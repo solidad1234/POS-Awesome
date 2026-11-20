@@ -1,5 +1,24 @@
 <template>
 	<div>
+		<!-- Date Range Filter -->
+		<v-row class="dashboard-grid mb-2">
+			<v-col cols="12">
+				<DateRangeFilter
+					:from-date="fromDate"
+					:to-date="toDate"
+					:today-label="__('Today')"
+					:seven-days-label="__('7 days')"
+					:thirty-days-label="__('30 days')"
+					:start-label="__('From Date')"
+					:end-label="__('To Date')"
+					:aria-label="__('Margin report date range')"
+					color="primary"
+					@update:from-date="$emit('update:fromDate', $event)"
+					@update:to-date="$emit('update:toDate', $event)"
+				/>
+			</v-col>
+		</v-row>
+
 		<!-- Summary Cards -->
 		<v-row class="dashboard-grid mb-2">
 			<v-col cols="12">
@@ -177,6 +196,7 @@ import { computed, ref } from "vue";
 import type { MarginReportRow } from "@/posapp/services/dashboardService";
 import EmptyState from "./EmptyState.vue";
 import SummaryMetric from "./SummaryMetric.vue";
+import DateRangeFilter from "@/posapp/components/pos/shared/DateRangeFilter.vue";
 
 const __ = (value: string) => ((window as any).__ ? (window as any).__(value) : value);
 
@@ -193,6 +213,14 @@ const props = defineProps<{
 	formatMoney: (v: number) => string;
 	formatQuantity: (v: number) => string;
 	formatPercent: (v: number | null | undefined, decimals?: number) => string;
+	fromDate?: string;
+	toDate?: string;
+	loading?: boolean;
+}>();
+
+const emit = defineEmits<{
+	(e: "update:fromDate", value: string): void;
+	(e: "update:toDate", value: string): void;
 }>();
 
 const searchText = ref("");
